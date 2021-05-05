@@ -8,7 +8,7 @@ const request = supertest(app);
 describe('API Routes', () => {
 
   beforeAll(() => {
-    execSync('npm run setup-db');
+    execSync('npm run recreate-tables');
   });
 
   afterAll(async () => {
@@ -72,6 +72,28 @@ describe('API Routes', () => {
       isPlatinum: false
     }
   ];
+
+  let tearItUp = {
+    id: expect.any(Number),
+    band: 'Tear It Up',
+    album: 'Nothing To Nothing',
+    year: 2011,
+    genre: 'Alternative Rock',
+    img: '',
+    isPlatinum: false
+  };
+
+  it('POST tearItUp to /api/albums', async () => {
+    const response = await request
+      .post('/api/albums')
+      .send(tearItUp);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(tearItUp);
+
+    tearItUp = response.body;
+  });
+  
   
 
   // If a GET request is made to /api/cats, does:
@@ -97,4 +119,7 @@ describe('API Routes', () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(expectedAlbums[1]);
   });
+
+  
+
 });
