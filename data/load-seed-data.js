@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import client from '../lib/client.js';
 // import our seed data:
-import cats from './cats.js';
+import albums from './album-data.js';
 
 run();
 
@@ -10,14 +10,16 @@ async function run() {
   try {
 
     await Promise.all(
-      cats.map(cat => {
+      albums.map(album => {
         return client.query(`
-          INSERT INTO cats (name, type, url, year, lives, is_sidekick)
-          VALUES ($1, $2, $3, $4, $5, $6);
+        INSERT INTO albums (band, album, year, genre, img, is_platinum)
+        VALUES ($1, $2, $3, $4, $5, $6);
         `,
-        [cat.name, cat.type, cat.url, cat.year, cat.lives, cat.isSidekick]);
+        [album.band, album.album, album.year, album.genre, album.img, album.isPlatinum]);
       })
     );
+
+
     
 
     console.log('seed data load complete');
