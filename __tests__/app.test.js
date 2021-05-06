@@ -83,7 +83,7 @@ describe('API Routes', () => {
     isPlatinum: false
   };
 
-  let xRaySPex = {
+  let xRaySpex = {
     id: expect.any(Number),
     band: 'X-Ray Spex',
     album: 'Gremfree Adolescents',
@@ -126,7 +126,33 @@ describe('API Routes', () => {
 
   });
 
-  
+  it('GET list of albums from /api/albums', async () => {
+    const r1 = await request.post('/api/albums').send(quicksand);
+    quicksand = r1.body;
+    const r2 = await request.post('/api/albums').send(xRaySpex);
+    xRaySpex = r2.body;
+    
+    const response = await request.get('/api/albums');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expect.arrayContaining([tearItUp, quicksand, xRaySpex]));
+  });
+
+  it('GET quicksand from /api/albums/:id', async () => {
+    const response = await request.get(`/api/albums/${quicksand.id}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(quicksand);
+  });
+
+  it('DELETE tearItUp from /api/albums/:id', async () => {
+    const response = await request.delete(`/api/albums/${tearItUp.id}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(tearItUp);
+
+    const getResponse = await request.get('/api/albums');
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.body).toEqual(expect.arrayContaining([quicksand, xRaySpex]));
+  });
 
 
   // If a GET request is made to /api/cats, does:
