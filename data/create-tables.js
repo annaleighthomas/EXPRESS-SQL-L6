@@ -17,7 +17,7 @@ async function run() {
         year INTEGER NOT NULL,
         genre VARCHAR(512) NOT NULL,
         img VARCHAR(1012),
-        is_platinum BOOLEAN
+        is_platinum BOOLEAN DEFAULT FALSE NOT NULL
       );
     `);
 
