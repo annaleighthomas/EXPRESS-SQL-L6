@@ -111,20 +111,20 @@ describe('API Routes', () => {
       expect(response.body).toEqual(expect.arrayContaining(expected));
     });
 
-    it.skip('GET slip from /api/albums/:id', async () => {
+    it('GET slip from /api/albums/:id', async () => {
       const response = await request.get(`/api/albums/${slip.id}`);
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(slip);
+      expect(response.body).toEqual({ ...slip, userName: user.name });
     });
 
-    it.skip('DELETE nothingToNothing from /api/albums/:id', async () => {
+    it('DELETE nothingToNothing from /api/albums/:id', async () => {
       const response = await request.delete(`/api/albums/${nothingToNothing.id}`);
       expect(response.status).toBe(200);
       expect(response.body).toEqual(nothingToNothing);
 
       const getResponse = await request.get('/api/albums');
       expect(getResponse.status).toBe(200);
-      expect(getResponse.body).toEqual(expect.arrayContaining([slip, germfreeAdolescents]));
+      expect(getResponse.body.find(album => album.id === nothingToNothing.id)).toBeUndefined();
     });
 
   });
