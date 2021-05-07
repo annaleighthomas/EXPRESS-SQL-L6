@@ -1,8 +1,9 @@
 /* eslint-disable no-console */
 import client from '../lib/client.js';
 // import our seed data:
-import albums from './album-data.js';
 import users from './users.js';
+import albums from './album-data.js';
+
 
 run();
 
