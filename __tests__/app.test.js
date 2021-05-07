@@ -129,13 +129,13 @@ describe('API Routes', () => {
 
   });
 
-  describe.skip('seed data tests', () => {
+  describe('seed data tests', () => {
 
     beforeAll(() => {
       execSync('npm run setup-db');
     });
 
-    it.skip('GET /api/albums', async () => {
+    it('GET /api/albums', async () => {
     // act - make the request
       const response = await request.get('/api/albums');
 
@@ -153,7 +153,10 @@ describe('API Routes', () => {
         year: expect.any(Number),
         genre: expect.any(String),
         img: expect.any(String),
-        isPlatinum: expect.any(Boolean)
+        isPlatinum: expect.any(Boolean),
+        userId: expect.any(Number),
+        userName: expect.any(String)
+
       });
     });
   });
