@@ -29,7 +29,7 @@ describe('API Routes', () => {
       expect(response.status).toBe(200);
 
       user = response.body;
-      console.log(JSON.stringify(user));
+
     });
 
     let nothingToNothing = {
@@ -64,7 +64,6 @@ describe('API Routes', () => {
 
     it('POST nothingToNothing to /api/albums', async () => {
       nothingToNothing.userId = user.id;
-      console.log('inside of post: ' + JSON.stringify(nothingToNothing));
       const response = await request
         .post('/api/albums')
         .send(nothingToNothing);
@@ -78,7 +77,6 @@ describe('API Routes', () => {
     it('PUT updated slip to /api/albums:id', async () => {
       nothingToNothing.genre = 'Punk Hardcore';
       nothingToNothing.isPlatinum = true;
-      console.log(JSON.stringify(nothingToNothing));
 
       const response = await request
         .put(`/api/albums/${nothingToNothing.id}`)
