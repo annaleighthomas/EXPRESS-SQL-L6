@@ -29,6 +29,7 @@ describe('API Routes', () => {
       expect(response.status).toBe(200);
 
       user = response.body;
+      console.log(JSON.stringify(user));
     });
 
     let nothingToNothing = {
@@ -41,10 +42,10 @@ describe('API Routes', () => {
       isPlatinum: false
     };
 
-    let gremfreeAdolescents = {
+    let germfreeAdolescents = {
       id: expect.any(Number),
       band: 'X-Ray Spex',
-      album: 'Gremfree Adolescents',
+      album: 'Germfree Adolescents',
       year: 1978,
       genre: 'Punk Rock',
       img: '',
@@ -63,6 +64,7 @@ describe('API Routes', () => {
 
     it('POST nothingToNothing to /api/albums', async () => {
       nothingToNothing.userId = user.id;
+      console.log('inside of post: ' + JSON.stringify(nothingToNothing));
       const response = await request
         .post('/api/albums')
         .send(nothingToNothing);
@@ -73,28 +75,40 @@ describe('API Routes', () => {
       nothingToNothing = response.body;
     });
 
-    it.skip('PUT updated slip to /api/albums:id', async () => {
+    it('PUT updated slip to /api/albums:id', async () => {
       nothingToNothing.genre = 'Punk Hardcore';
       nothingToNothing.isPlatinum = true;
+      console.log(JSON.stringify(nothingToNothing));
 
       const response = await request
         .put(`/api/albums/${nothingToNothing.id}`)
         .send(nothingToNothing);
+
       expect(response.status).toBe(200);
       expect(response.body).toEqual(nothingToNothing);
-
     });
 
-    it.skip('GET list of albums from /api/albums', async () => {
+    it('GET list of albums from /api/albums', async () => {
+      slip.userId = user.id;
       const r1 = await request.post('/api/albums').send(slip);
       slip = r1.body;
-      const r2 = await request.post('/api/albums').send(gremfreeAdolescents);
-      gremfreeAdolescents = r2.body;
+
+      germfreeAdolescents.userId = user.id;
+      const r2 = await request.post('/api/albums').send(germfreeAdolescents);
+      germfreeAdolescents = r2.body;
     
       const response = await request.get('/api/albums');
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(expect.arrayContaining([nothingToNothing, slip, gremfreeAdolescents]));
+
+      const expected = [nothingToNothing].map(album => {
+        return { 
+          userName: user.name,
+          ...album
+        };
+      });
+      
+      expect(response.body).toEqual(expect.arrayContaining(expected));
     });
 
     it.skip('GET slip from /api/albums/:id', async () => {
@@ -110,7 +124,7 @@ describe('API Routes', () => {
 
       const getResponse = await request.get('/api/albums');
       expect(getResponse.status).toBe(200);
-      expect(getResponse.body).toEqual(expect.arrayContaining([slip, gremfreeAdolescents]));
+      expect(getResponse.body).toEqual(expect.arrayContaining([slip, germfreeAdolescents]));
     });
 
   });
