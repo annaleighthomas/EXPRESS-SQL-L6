@@ -11,95 +11,48 @@ describe('API Routes', () => {
     return client.end();
   });
 
-  describe('testing all routes except for re-seeding get', () => {
+  describe('/api/albums', () => {
 
-    beforeAll(() => {
+    let user;
+
+    beforeAll(async () => {
       execSync('npm run recreate-tables');
+
+      const response = await request
+        .post('/api/auth/signup')
+        .send({
+          name: 'Me the User',
+          email: 'me@user.com',
+          password: 'password'
+        });
+
+      expect(response.status).toBe(200);
+
+      user = response.body;
+
     });
 
-
-
- 
-
-    // const expectedAlbums = [
-
-    //   {
-    //     id: expect.any(Number),
-    //     band: 'Quicksand',
-    //     album: 'Slip',
-    //     year: 1993,
-    //     genre: 'Post-Hardcore',
-    //     img: '',
-    //     isPlatinum: false
-    //   },
-    //   {
-    //     id: expect.any(Number),
-    //     band: 'Minor Threat',
-    //     album: 'Out of Step',
-    //     year: 1983,
-    //     genre: 'Punk Hardcore',
-    //     img: '',
-    //     isPlatinum: false
-    //   },
-    //   {
-    //     id: expect.any(Number),
-    //     band: 'X-Ray Spex',
-    //     album: 'Gremfree Adolescents',
-    //     year: 1978,
-    //     genre: 'Punk Rock',
-    //     img: '',
-    //     isPlatinum: false
-    //   },
-    //   {
-    //     id: expect.any(Number),
-    //     band: 'Cocks Sparrer',
-    //     album: 'Shock Troops',
-    //     year: 1982,
-    //     genre: 'Punk Rock',
-    //     img: '',
-    //     isPlatinum: false
-    //   },
-    //   {
-    //     id: expect.any(Number),
-    //     band: 'Hole',
-    //     album: 'Celebrity Skin',
-    //     year: 1998,
-    //     genre: 'Alternative Rock',
-    //     img: '',
-    //     isPlatinum: true
-    //   },
-    //   {
-    //     id: expect.any(Number),
-    //     band: 'Operation Ivy',
-    //     album: 'Self-titled',
-    //     year: 1991,
-    //     genre: 'Punk Rock',
-    //     img: '',
-    //     isPlatinum: false
-    //   }
-    // ];
-
-    let tearItUp = {
+    let nothingToNothing = {
       id: expect.any(Number),
       band: 'Tear It Up',
       album: 'Nothing To Nothing',
       year: 2011,
-      genre: 'Alternative Rock',
+      genre: 'Hardcore',
       img: '',
       isPlatinum: false
     };
 
-    let xRaySpex = {
+    let germfreeAdolescents = {
       id: expect.any(Number),
       band: 'X-Ray Spex',
-      album: 'Gremfree Adolescents',
+      album: 'Germfree Adolescents',
       year: 1978,
       genre: 'Punk Rock',
       img: '',
       isPlatinum: false
     };
 
-    let quicksand =  {
+    let slip =  {
       id: expect.any(Number),
       band: 'Quicksand',
       album: 'Slip',
@@ -109,82 +62,68 @@ describe('API Routes', () => {
       isPlatinum: false
     };
 
-    it('POST tearItUp to /api/albums', async () => {
+    it('POST nothingToNothing to /api/albums', async () => {
+      nothingToNothing.userId = user.id;
       const response = await request
         .post('/api/albums')
-        .send(tearItUp);
+        .send(nothingToNothing);
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(tearItUp);
+      expect(response.body).toEqual(nothingToNothing);
 
-      tearItUp = response.body;
+      nothingToNothing = response.body;
     });
 
-    it('PUT updated quicksand to /api/albums:id', async () => {
-      tearItUp.genre = 'Punk Hardcore';
-      tearItUp.isPlatinum = true;
+    it('PUT updated slip to /api/albums:id', async () => {
+      nothingToNothing.genre = 'Punk Hardcore';
+      nothingToNothing.isPlatinum = true;
 
       const response = await request
-        .put(`/api/albums/${tearItUp.id}`)
-        .send(tearItUp);
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(tearItUp);
+        .put(`/api/albums/${nothingToNothing.id}`)
+        .send(nothingToNothing);
 
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(nothingToNothing);
     });
 
     it('GET list of albums from /api/albums', async () => {
-      const r1 = await request.post('/api/albums').send(quicksand);
-      quicksand = r1.body;
-      const r2 = await request.post('/api/albums').send(xRaySpex);
-      xRaySpex = r2.body;
+      slip.userId = user.id;
+      const r1 = await request.post('/api/albums').send(slip);
+      slip = r1.body;
+
+      germfreeAdolescents.userId = user.id;
+      const r2 = await request.post('/api/albums').send(germfreeAdolescents);
+      germfreeAdolescents = r2.body;
     
       const response = await request.get('/api/albums');
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(expect.arrayContaining([tearItUp, quicksand, xRaySpex]));
+
+      const expected = [nothingToNothing].map(album => {
+        return { 
+          userName: user.name,
+          ...album
+        };
+      });
+      
+      expect(response.body).toEqual(expect.arrayContaining(expected));
     });
 
-    it('GET quicksand from /api/albums/:id', async () => {
-      const response = await request.get(`/api/albums/${quicksand.id}`);
+    it('GET slip from /api/albums/:id', async () => {
+      const response = await request.get(`/api/albums/${slip.id}`);
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(quicksand);
+      expect(response.body).toEqual({ ...slip, userName: user.name });
     });
 
-    it('DELETE tearItUp from /api/albums/:id', async () => {
-      const response = await request.delete(`/api/albums/${tearItUp.id}`);
+    it('DELETE nothingToNothing from /api/albums/:id', async () => {
+      const response = await request.delete(`/api/albums/${nothingToNothing.id}`);
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(tearItUp);
+      expect(response.body).toEqual(nothingToNothing);
 
       const getResponse = await request.get('/api/albums');
       expect(getResponse.status).toBe(200);
-      expect(getResponse.body).toEqual(expect.arrayContaining([quicksand, xRaySpex]));
+      expect(getResponse.body.find(album => album.id === nothingToNothing.id)).toBeUndefined();
     });
-
-
-
-    // If a GET request is made to /api/cats, does:
-    // 1) the server respond with status of 200
-    // 2) the body match the expected API data?
-    // it('GET /api/album', async () => {
-    // // act - make the request
-    //   const response = await request.get('/api/albums');
-
-    //   // was response OK (200)?
-    //   expect(response.status).toBe(200);
-
-    //   // did it return the data we expected?
-    //   expect(response.body).toEqual(expectedAlbums);
-
-    // });
-
-    // If a GET request is made to /api/cats/:id, does:
-    // 1) the server respond with status of 200
-    // 2) the body match the expected API data for the cat with that id?
-    // test('GET /api/albums/:id', async () => {
-    //   const response = await request.get('/api/albums/2');
-    //   expect(response.status).toBe(200);
-    //   expect(response.body).toEqual(expectedAlbums[1]);
-    // });
 
   });
 
@@ -212,10 +151,37 @@ describe('API Routes', () => {
         year: expect.any(Number),
         genre: expect.any(String),
         img: expect.any(String),
-        isPlatinum: expect.any(Boolean)
+        isPlatinum: expect.any(Boolean),
+        userId: expect.any(Number),
+        userName: expect.any(String)
+
       });
     });
-
   });
-
 });
+
+
+
+// If a GET request is made to /api/cats, does:
+// 1) the server respond with status of 200
+// 2) the body match the expected API data?
+// it('GET /api/album', async () => {
+// // act - make the request
+//   const response = await request.get('/api/albums');
+
+//   // was response OK (200)?
+//   expect(response.status).toBe(200);
+
+//   // did it return the data we expected?
+//   expect(response.body).toEqual(expectedAlbums);
+
+// });
+
+// If a GET request is made to /api/cats/:id, does:
+// 1) the server respond with status of 200
+// 2) the body match the expected API data for the cat with that id?
+// test('GET /api/albums/:id', async () => {
+//   const response = await request.get('/api/albums/2');
+//   expect(response.status).toBe(200);
+//   expect(response.body).toEqual(expectedAlbums[1]);
+// });
